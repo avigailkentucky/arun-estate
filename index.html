@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Arun Estates - Buy, Sell & Lease Properties</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold-dark:#B8941F;--dark:#0A0A0B;--dark-2:#141416;--dark-3:#1C1C1F;--white:#FFF;--gray:#8E8E93;--gray-2:#3A3A3C;--success:#30D158;--danger:#FF453A;--border:rgba(212,175,55,0.15)}
+[data-theme="light"]{--dark:#FFFFFF;--dark-2:#F2F2F7;--dark-3:#FFFFFF;--white:#000000;--gray:#8E8E93;--gray-2:#E5E5EA;--border:rgba(0,0,0,0.1)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',sans-serif;background:var(--dark);color:var(--white);overflow-x:hidden;padding-bottom:70px}
+.app{max-width:500px;margin:0 auto;background:var(--dark);min-height:100vh;position:relative}
+.header{position:sticky;top:0;z-index:100;background:var(--dark-2);padding:12px 16px;border-bottom:1px solid var(--border);backdrop-filter:blur(20px)}
+.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);text-align:center;user-select:none;cursor:pointer}
+.search-bar{display:flex;gap:8px;margin-top:12px}
+.search-input{flex:1;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--white);font-size:15px;outline:none}
+.search-input::placeholder{color:var(--gray)}
+.filter-btn{background:var(--dark-3);border:1px solid var(--border);border-radius:12px;padding:12px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.location-bar{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--gray)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{background:var(--dark-3);border:1px solid var(--border);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all .2s;min-height:36px}
+.chip.active{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 16px 16px;min-height:200px}
+.card{background:var(--dark-2);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .2s}
+.card:active{transform:scale(.97)}
+.card-img{width:100%;height:140px;object-fit:cover;background:var(--dark-3);position:relative}
+.card-badge{position:absolute;top:8px;left:8px;background:var(--gold);color:var(--dark);padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700}
+.card-save{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.card-body{padding:12px}
+.card-price{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.card-title{font-size:13px;font-weight:500;margin-bottom:4px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-location{font-size:11px;color:var(--gray);display:flex;align-items:center;gap:4px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--dark-2);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 0;z-index:100;max-width:500px;margin:0 auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;cursor:pointer;min-width:60px;min-height:50px;color:var(--gray);font-size:11px;font-weight:500}
+.nav-item.active{color:var(--gold)}
+.nav-item svg{width:24px;height:24px}
+.modal{position:fixed;inset:0;background:var(--dark);z-index:200;display:none;overflow-y:auto}
+.modal.active{display:block}
+.modal-header{position:sticky;top:0;background:var(--dark-2);padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;z-index:10}
+.modal-title{font-size:18px;font-weight:600}
+.close-btn{background:var(--dark-3);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--white)}
+.detail-img{width:100%;height:300px;object-fit:cover}
+.detail-body{padding:16px}
+.detail-price{font-size:32px;font-weight:700;color:var(--gold);margin-bottom:8px}
+.detail-title{font-size:20px;font-weight:600;margin-bottom:12px}
+.specs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.spec{background:var(--dark-2);padding:12px;border-radius:12px;text-align:center;border:1px solid var(--border)}
+.spec-value{font-size:16px;font-weight:600;color:var(--gold)}
+.spec-label{font-size:11px;color:var(--gray);margin-top:4px}
+.action-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+.btn{padding:16px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;transition:all .2s;text-decoration:none}
+.btn-primary{background:var(--gold);color:var(--dark)}
+.btn-secondary{background:var(--dark-2);color:var(--white);border:1px solid var(--border)}
+.btn:active{transform:scale(.96)}
+.form-group{margin-bottom:20px}
+.form-label{font-size:13px;font-weight:500;margin-bottom:8px;display:block;color:var(--gray)}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--dark-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--white);font-size:15px;outline:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold)}
+.form-textarea{min-height:100px;resize:vertical;font-family:inherit}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--dark-3);border:1px solid var(--gold);padding:12px 20px;border-radius:12px;z-index:300;display:none;font-size:14px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.toast.show{display:block;animation:slideDown .3s}
+@keyframes slideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+.empty{text-align:center;padding:60px 20px;color:var(--gray)}
+.empty svg{width:80px;height:80px;margin-bottom:16px;opacity:.3}
+.hidden{display:none!important}
+.admin-panel{background:var(--dark-2);padding:16px;margin:16px;border-radius:16px;border:1px solid var(--gold)}
+.admin-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0}
+.stat{background:var(--dark-3);padding:16px;border-radius:12px;border:1px solid var(--border)}
+.stat-value{font-size:24px;font-weight:700;color:var(--gold)}
+.stat-label{font-size:12px;color:var(--gray);margin-top:4px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.login-form{padding:20px}
+.list-item{background:var(--dark-2);padding:16px;border-radius:12px;margin-bottom:12px;border:1px solid var(--border)}
+.theme-toggle{position:fixed;top:16px;right:16px;background:var(--dark-3);border:1px solid var(--border);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:101;font-size:20px}
+.loading{text-align:center;padding:40px;color:var(--gray)}
+</style>
+</head>
+<body>
+<div class="theme-toggle" id="themeToggle">🌙</div>
+<div class="app" id="app">
+  <div class="toast" id="toast"></div>
+  
+  <div class="tab-content active" id="homeTab">
+    <div class="header">
+      <div class="logo" id="logo">Arun Estates</div>
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Search properties..." id="searchInput">
+        <button class="filter-btn" id="filterBtn">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10m-7 6h4"/></svg>
+        </button>
+      </div>
+      <div class="location-bar">
+        <svg width="14" height="14" fill="currentColor"><path d="M7 0C4.2 0 2 2.2 2 5c0 3.5 5 9 5 9s5-5.5 5-9c0-2.8-2.2-5-5-5zm0 7C5.9 7 5 6.1 5 5s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+        Arunachal Pradesh, Northeast India
+      </div>
+    </div>
+    
+    <div class="chips" id="chips">
+      <div class="chip active" data-filter="all">All</div>
+      <div class="chip" data-filter="sale">For Sale</div>
+      <div class="chip" data-filter="rent">For Rent</div>
+      <div class="chip" data-filter="lease">For Lease</div>
+      <div class="chip" data-filter="residential">Residential</div>
+      <div class="chip" data-filter="commercial">Commercial</div>
+    </div>
+    
+    <div class="grid" id="propertyGrid"><div class="loading">Loading properties...</div></div>
+  </div>
+  
+  <div class="tab-content" id="categoriesTab">
+    <div class="header"><div class="logo">Categories</div></div>
+    <div style="padding:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+      <div class="card" onclick="filterCat('residential')"><div class="card-body" style="text-align:center;padding:30px 12px"><div style="font-size:32px;margin-bottom:8px">🏠</div><div style="font-weight:600">Residential</div></div></div>
+      <div class="card" onclick="filterCat('commercial')"><div class="card-body" style="text-align:center;padding:30px 12px"><div style="font-size:32px;margin-bottom:8px">🏢</div><div style="font-weight:600">Commercial</div></div></div>
+      <div class="card" onclick="filterCat('agricultural')"><div class="card-body" style="text-align:center;padding:30px 12px"><div style="font-size:32px;margin-bottom:8px">🌾</div><div style="font-weight:600">Agricultural</div></div></div>
+      <div class="card" onclick="filterCat('luxury')"><div class="card-body" style="text-align:center;padding:30px 12px"><div style="font-size:32px;margin-bottom:8px">✨</div><div style="font-weight:600">Luxury</div></div></div>
+    </div>
+  </div>
+  
+  <div class="tab-content" id="sellTab">
+    <div class="header"><div class="logo">List Property</div></div>
+    <div id="sellContent" style="padding:16px"></div>
+  </div>
+  
+  <div class="tab-content" id="savedTab">
+    <div class="header"><div class="logo">Saved Properties</div></div>
+    <div class="grid" id="savedGrid"></div>
+  </div>
+  
+  <div class="tab-content" id="profileTab">
+    <div class="header"><div class="logo">Profile</div></div>
+    <div id="profileContent" style="padding:16px"></div>
+  </div>
+  
+  <div class="bottom-nav">
+    <div class="nav-item active" data-tab="homeTab">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" data-tab="categoriesTab">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+      <span>Categories</span>
+    </div>
+    <div class="nav-item" data-tab="sellTab">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+      <span>Sell</span>
+    </div>
+    <div class="nav-item" data-tab="savedTab">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      <span>Saved</span>
+    </div>
+    <div class="nav-item" data-tab="profileTab">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>Profile</span>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="detailModal">
+  <div class="modal-header">
+    <div class="modal-title">Property Details</div>
+    <button class="close-btn" onclick="closeModal()">✕</button>
+  </div>
+  <div id="detailContent"></div>
+</div>
+
+<div class="modal" id="loginModal">
+  <div class="modal-header">
+    <div class="modal-title" id="authTitle">Login</div>
+    <button class="close-btn" onclick="closeModal()">✕</button>
+  </div>
+  <div class="login-form" id="authForm"></div>
+</div>
+
+<script>
+const DEFAULT_PROPERTIES = [
+  {id:1,title:'3BHK Luxury Villa in Itanagar',price:8500000,location:'Itanagar, AP',type:'residential',status:'sale',area:'2500 sqft',img:'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400',desc:'Beautiful 3BHK villa with modern amenities, garden, and parking. Prime location.',featured:true,approved:true},
+  {id:2,title:'Commercial Shop Near Market',price:45000,location:'Naharlagun, AP',type:'commercial',status:'rent',area:'800 sqft',img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400',desc:'Prime location commercial space on main road. High footfall area.',approved:true},
+  {id:3,title:'2 Acre Agricultural Land',price:1200000,location:'Pasighat, AP',type:'agricultural',status:'sale',area:'2 Acres',img:'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400',desc:'Fertile land with water access and road connectivity.',approved:true},
+  {id:4,title:'4BHK Penthouse Premium',price:15000000,location:'Itanagar, AP',type:'luxury',status:'sale',area:'3200 sqft',img:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400',desc:'Luxury penthouse with valley view, private terrace, premium fittings.',featured:true,approved:true},
+  {id:5,title:'2BHK Apartment for Rent',price:18000,location:'Itanagar, AP',type:'residential',status:'rent',area:'1200 sqft',img:'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=400',desc:'Furnished 2BHK in gated society with security and parking.',approved:true},
+  {id:6,title:'Office Space 1500 sqft',price:35000,location:'Naharlagun, AP',type:'commercial',status:'lease',area:'1500 sqft',img:'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=400',desc:'Modern office space with conference room and parking.',approved:true}
+];
+
+let properties = JSON.parse(localStorage.getItem('ae_properties') || 'null') || DEFAULT_PROPERTIES;
+let users = JSON.parse(localStorage.getItem('ae_users') || '[]');
+let currentUser = JSON.parse(localStorage.getItem('ae_currentUser') || 'null');
+let saved = JSON.parse(localStorage.getItem('ae_saved') || '[]');
+let isAdmin = localStorage.getItem('ae_isAdmin') === 'true';
+let tapCount = 0, tapTimer, logoPressTimer;
+
+window.addEventListener('DOMContentLoaded',()=>{
+  console.log('Arun Estates: Init');
+  renderProperties();
+  setupEventListeners();
+  checkTheme();
+  updateProfileTab();
+  setupAdminAccess();
+});
+
+function setupEventListeners(){
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    item.addEventListener('click',()=>switchTab(item.dataset.tab));
+  });
+  document.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click',(e)=>filterProperties(e.target.dataset.filter));
+  });
+  document.getElementById('searchInput').addEventListener('input',e=>{
+    if(e.target.value==='8611'){showToast('Admin access unlocked');document.querySelector('[data-tab="profileTab"]').click();return}
+    searchProperties(e.target.value);
+  });
+  document.getElementById('logo').addEventListener('touchstart',handleLogoPress);
+  document.getElementById('logo').addEventListener('touchend',handleLogoRelease);
+  document.getElementById('logo').addEventListener('mousedown',handleLogoPress);
+  document.getElementById('logo').addEventListener('mouseup',handleLogoRelease);
+  document.getElementById('themeToggle').addEventListener('click',toggleTheme);
+}
+
+function setupAdminAccess(){
+  document.addEventListener('click',e=>{
+    if(e.target.textContent && e.target.textContent.includes('v2.0')){
+      tapCount++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(()=>tapCount=0,1000);
+      if(tapCount>=5){showAdminLogin();tapCount=0}
+    }
+  });
+}
+
+function handleLogoPress(){logoPressTimer=setTimeout(()=>{showAdminLogin()},2000)}
+function handleLogoRelease(){clearTimeout(logoPressTimer)}
+
+function switchTab(tabId){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+  if(tabId==='sellTab')renderSellTab();
+  if(tabId==='savedTab')renderSaved();
+  if(tabId==='profileTab')updateProfileTab();
+}
+
+function renderProperties(filter='all',search=''){
+  console.log('Rendering properties, filter:', filter);
+  const grid=document.getElementById('propertyGrid');
+  let filtered=properties.filter(p=>p.approved!==false);
+  if(filter!=='all')filtered=filtered.filter(p=>p.status===filter||p.type===filter);
+  if(search)filtered=filtered.filter(p=>p.title.toLowerCase().includes(search.toLowerCase())||p.location.toLowerCase().includes(search));
+  if(filtered.length===0){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg><div>No properties found</div></div>';return}
+  grid.innerHTML=filtered.map(p=>`
+    <div class="card" onclick="showDetail(${p.id})">
+      <div style="position:relative">
+        <img src="${p.img}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300/1C1C1F/D4AF37?text=Property'">
+        <div class="card-badge">${p.status.toUpperCase()}</div>
+        <button class="card-save" onclick="event.stopPropagation();toggleSave(${p.id})">
+          <svg width="16" height="16" fill="${saved.includes(p.id)?'#D4AF37':'none'}" stroke="${saved.includes(p.id)?'#D4AF37':'white'}" stroke-width="2"><path d="M20.84 4.61a5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="card-price">₹${p.price>=100000?(p.price/100000).toFixed(1)+'L':(p.price/1000).toFixed(0)+'K'}</div>
+        <div class="card-title">${p.title}</div>
+        <div class="card-location">
+          <svg width="12" height="12" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+          ${p.location}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterProperties(filter){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  renderProperties(filter);
+}
+
+function filterCat(cat){
+  switchTab('homeTab');
+  setTimeout(()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    renderProperties(cat);
+  },100);
+}
+
+function searchProperties(query){renderProperties('all',query)}
+
+function toggleSave(id){
+  const idx=saved.indexOf(id);
+  if(idx>-1){saved.splice(idx,1);showToast('Removed from saved')}else{saved.push(id);showToast('Saved!')}
+  localStorage.setItem('ae_saved',JSON.stringify(saved));
+  renderProperties();
+}
+
+function renderSaved(){
+  const grid=document.getElementById('savedGrid');
+  const savedProps=properties.filter(p=>saved.includes(p.id));
+  if(savedProps.length===0){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><div>No saved properties</div><div style="font-size:12px;margin-top:8px">Tap the heart icon to save</div></div>';return}
+  grid.innerHTML=savedProps.map(p=>`
+    <div class="card" onclick="showDetail(${p.id})">
+      <img 
