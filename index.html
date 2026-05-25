@@ -297,8 +297,293 @@ function toggleSave(id){
 
 function renderSaved(){
   const grid=document.getElementById('savedGrid');
-  const savedProps=properties.filter(p=>saved.includes(p.id));
+  const savedProps=properties.filter(p=>saved.includes(p.id) && p.approved!==false);
   if(savedProps.length===0){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><div>No saved properties</div><div style="font-size:12px;margin-top:8px">Tap the heart icon to save</div></div>';return}
   grid.innerHTML=savedProps.map(p=>`
     <div class="card" onclick="showDetail(${p.id})">
-      <img 
+      <div style="position:relative">
+        <img src="${p.img}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300/1C1C1F/D4AF37?text=Property'">
+        <div class="card-badge">${p.status.toUpperCase()}</div>
+        <button class="card-save" onclick="event.stopPropagation();toggleSave(${p.id})">
+          <svg width="16" height="16" fill="#D4AF37" stroke="#D4AF37" stroke-width="2"><path d="M20.84 4.61a5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="card-price">₹${p.price>=100000?(p.price/100000).toFixed(1)+'L':(p.price/1000).toFixed(0)+'K'}</div>
+        <div class="card-title">${p.title}</div>
+        <div class="card-location">
+          <svg width="12" height="12" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+          ${p.location}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showDetail(id){
+  const p=properties.find(x=>x.id===id);
+  if(!p)return;
+  const content=document.getElementById('detailContent');
+  content.innerHTML=`
+    <img src="${p.img}" class="detail-img" onerror="this.src='https://via.placeholder.com/400x300/1C1C1F/D4AF37?text=Property'">
+    <div class="detail-body">
+      <div class="detail-price">₹${p.price.toLocaleString('en-IN')}</div>
+      <div class="detail-title">${p.title}</div>
+      <div class="card-location" style="margin-bottom:16px;font-size:14px">
+        <svg width="14" height="14" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+        ${p.location}
+      </div>
+      <div class="specs">
+        <div class="spec"><div class="spec-value">${p.area.split(' ')[0]}</div><div class="spec-label">${p.area.split(' ').slice(1).join(' ')||'Area'}</div></div>
+        <div class="spec"><div class="spec-value">${p.type.charAt(0).toUpperCase()+p.type.slice(1)}</div><div class="spec-label">Type</div></div>
+        <div class="spec"><div class="spec-value">${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</div><div class="spec-label">Status</div></div>
+      </div>
+      <div style="font-size:14px;line-height:1.6;color:var(--gray);margin-bottom:20px">${p.desc}</div>
+      <div class="action-btns">
+        <button class="btn btn-primary" onclick="contactSeller(${p.id})">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Contact
+        </button>
+        <button class="btn btn-secondary" onclick="toggleSave(${p.id});showDetail(${p.id})">
+          <svg width="18" height="18" fill="${saved.includes(p.id)?'#D4AF37':'none'}" stroke="${saved.includes(p.id)?'#D4AF37':'currentColor'}" stroke-width="2"><path d="M20.84 4.61a5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          ${saved.includes(p.id)?'Saved':'Save'}
+        </button>
+      </div>
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('active');
+}
+
+function closeModal(){
+  document.querySelectorAll('.modal').forEach(m=>m.classList.remove('active'));
+}
+
+function contactSeller(id){
+  const p=properties.find(x=>x.id===id);
+  showToast(`Contact request sent for: ${p.title}`);
+  setTimeout(()=>closeModal(),1500);
+}
+
+function renderSellTab(){
+  const container=document.getElementById('sellContent');
+  if(!currentUser){
+    container.innerHTML=`<div class="empty" style="padding:40px 20px"><svg fill="currentColor" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:.3;margin-bottom:16px"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><div style="font-weight:600;margin-bottom:8px">Login Required</div><div style="font-size:13px;color:var(--gray);margin-bottom:20px">Please login or register to list your property</div><button class="btn btn-primary" onclick="showAuth('login')" style="width:100%">Login / Register</button></div>`;
+    return;
+  }
+  container.innerHTML=`<form onsubmit="submitProperty(event)">
+    <div class="form-group"><label class="form-label">Property Title</label><input type="text" class="form-input" name="title" required placeholder="e.g. 3BHK Villa in Itanagar"></div>
+    <div class="form-group"><label class="form-label">Location</label><input type="text" class="form-input" name="location" required placeholder="e.g. Itanagar, AP"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Price (₹)</label><input type="number" class="form-input" name="price" required placeholder="8500000"></div>
+      <div class="form-group"><label class="form-label">Area</label><input type="text" class="form-input" name="area" required placeholder="e.g. 2500 sqft"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Type</label><select class="form-select" name="type" required><option value="residential">Residential</option><option value="commercial">Commercial</option><option value="agricultural">Agricultural</option><option value="luxury">Luxury</option></select></div>
+      <div class="form-group"><label class="form-label">Status</label><select class="form-select" name="status" required><option value="sale">For Sale</option><option value="rent">For Rent</option><option value="lease">For Lease</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Image URL</label><input type="url" class="form-input" name="img" placeholder="https://example.com/image.jpg"></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" name="desc" required placeholder="Describe your property..."></textarea></div>
+    <button type="submit" class="btn btn-primary" style="width:100%">Submit for Approval</button>
+    <div style="margin-top:12px;font-size:12px;color:var(--gray);text-align:center">Your listing will be reviewed by admin before appearing publicly</div>
+  </form>`;
+}
+
+function submitProperty(e){
+  e.preventDefault();
+  const form=e.target;
+  const newProp={
+    id:Date.now(),
+    title:form.title.value,
+    location:form.location.value,
+    price:parseInt(form.price.value),
+    area:form.area.value,
+    type:form.type.value,
+    status:form.status.value,
+    img:form.img.value||'https://via.placeholder.com/400x300/1C1C1F/D4AF37?text=Property',
+    desc:form.desc.value,
+    approved:false,
+    featured:false,
+    owner:currentUser.phone
+  };
+  properties.push(newProp);
+  localStorage.setItem('ae_properties',JSON.stringify(properties));
+  showToast('Property submitted for approval!');
+  form.reset();
+  switchTab('homeTab');
+  renderProperties();
+}
+
+function showAuth(mode){
+  document.getElementById('authTitle').textContent=mode==='login'?'Login':'Register';
+  const form=document.getElementById('authForm');
+  form.innerHTML=`<form onsubmit="${mode==='login'?'handleLogin':'handleRegister'}(event)">
+    <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input" name="name" required placeholder="Your name"></div>
+    <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" name="phone" required placeholder="+91 98765 43210" pattern="[0-9+\s-]{10,15}"></div>
+    ${mode==='register'?'<div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" name="email" placeholder="email@example.com"></div>':''}
+    <button type="submit" class="btn btn-primary" style="width:100%;margin-bottom:12px">${mode==='login'?'Login':'Register'}</button>
+    <div style="text-align:center;font-size:13px;color:var(--gray)">${mode==='login'?"Don't have an account? ":"Already have an account? "}<a href="#" style="color:var(--gold);text-decoration:none" onclick="showAuth('${mode==='login'?'register':'login'}');return false">${mode==='login'?'Register':'Login'}</a></div>
+  </form>`;
+  document.getElementById('loginModal').classList.add('active');
+}
+
+function handleLogin(e){
+  e.preventDefault();
+  const phone=e.target.phone.value.replace(/\s/g,'');
+  const name=e.target.name.value;
+  const user=users.find(u=>u.phone===phone);
+  if(user){
+    currentUser=user;
+    localStorage.setItem('ae_currentUser',JSON.stringify(currentUser));
+    showToast(`Welcome back, ${currentUser.name}!`);
+    closeModal();
+    updateProfileTab();
+    if(currentUser.phone==='8611'){isAdmin=true;localStorage.setItem('ae_isAdmin','true');showToast('Admin mode activated');}
+  }else{
+    showToast('User not found. Please register.');
+    setTimeout(()=>showAuth('register'),1000);
+  }
+}
+
+function handleRegister(e){
+  e.preventDefault();
+  const newUser={
+    name:e.target.name.value,
+    phone:e.target.phone.value.replace(/\s/g,''),
+    email:e.target.email?e.target.email.value:'',
+    created:Date.now()
+  };
+  users.push(newUser);
+  localStorage.setItem('ae_users',JSON.stringify(users));
+  currentUser=newUser;
+  localStorage.setItem('ae_currentUser',JSON.stringify(currentUser));
+  showToast(`Welcome, ${currentUser.name}!`);
+  closeModal();
+  updateProfileTab();
+}
+
+function updateProfileTab(){
+  const container=document.getElementById('profileContent');
+  if(!currentUser){
+    container.innerHTML=`<div class="empty" style="padding:40px 20px"><svg fill="currentColor" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:.3;margin-bottom:16px"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><div style="font-weight:600;margin-bottom:8px">Guest User</div><div style="font-size:13px;color:var(--gray);margin-bottom:20px">Login to manage your listings and saved properties</div><button class="btn btn-primary" onclick="showAuth('login')" style="width:100%">Login / Register</button></div>`;
+    return;
+  }
+
+  let html=`<div style="text-align:center;padding:20px 0">
+    <div style="width:80px;height:80px;border-radius:50%;background:var(--gold);color:var(--dark);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 12px">${currentUser.name.charAt(0).toUpperCase()}</div>
+    <div style="font-size:18px;font-weight:600">${currentUser.name}</div>
+    <div style="font-size:13px;color:var(--gray)">${currentUser.phone}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="stat" style="padding:12px"><div class="stat-value">${properties.filter(p=>p.owner===currentUser.phone).length}</div><div class="stat-label">My Listings</div></div>
+    <div class="stat" style="padding:12px"><div class="stat-value">${saved.length}</div><div class="stat-label">Saved</div></div>
+  </div>
+  <button class="btn btn-secondary" style="width:100%;margin-bottom:12px" onclick="showAuth('login')">Switch Account</button>
+  <button class="btn btn-secondary" style="width:100%;border-color:var(--danger);color:var(--danger)" onclick="logout()">Logout</button>`;
+
+  if(isAdmin){
+    html+=`<div class="admin-panel" style="margin-top:20px"><div style="font-weight:600;color:var(--gold);margin-bottom:12px;font-size:16px">👑 Admin Panel</div>
+    <div class="admin-stats">
+      <div class="stat"><div class="stat-value">${properties.length}</div><div class="stat-label">Total</div></div>
+      <div class="stat"><div class="stat-value">${properties.filter(p=>p.approved===false).length}</div><div class="stat-label">Pending</div></div>
+    </div>
+    <div style="font-weight:600;margin-bottom:8px;font-size:14px">Pending Approvals</div>
+    <div id="adminPending"></div>
+    <div style="font-weight:600;margin:16px 0 8px;font-size:14px">All Properties</div>
+    <div id="adminAll"></div></div>`;
+  }
+
+  container.innerHTML=html;
+  if(isAdmin){renderAdminLists();}
+}
+
+function renderAdminLists(){
+  const pending=properties.filter(p=>p.approved===false);
+  const pendingDiv=document.getElementById('adminPending');
+  if(pendingDiv){
+    pendingDiv.innerHTML=pending.length?pending.map(p=>`
+      <div class="list-item" style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:600;font-size:14px">${p.title}</div><div style="font-size:12px;color:var(--gray)">${p.location} • ₹${p.price.toLocaleString('en-IN')}</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" style="padding:8px 12px;min-height:auto;font-size:12px" onclick="approveProp(${p.id})">Approve</button>
+          <button class="btn btn-secondary" style="padding:8px 12px;min-height:auto;font-size:12px;border-color:var(--danger);color:var(--danger)" onclick="rejectProp(${p.id})">Reject</button>
+        </div>
+      </div>
+    `).join(''):'<div style="font-size:13px;color:var(--gray);padding:8px">No pending approvals</div>';
+  }
+  const allDiv=document.getElementById('adminAll');
+  if(allDiv){
+    allDiv.innerHTML=properties.map(p=>`
+      <div class="list-item" style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:600;font-size:14px">${p.title}</div><div style="font-size:12px;color:var(--gray)">${p.location} • ${p.approved===false?'⏳ Pending':'✅ Approved'}</div></div>
+        <button class="btn btn-secondary" style="padding:8px 12px;min-height:auto;font-size:12px;border-color:var(--danger);color:var(--danger)" onclick="deleteProp(${p.id})">Delete</button>
+      </div>
+    `).join('');
+  }
+}
+
+function approveProp(id){
+  const p=properties.find(x=>x.id===id);
+  if(p){p.approved=true;localStorage.setItem('ae_properties',JSON.stringify(properties));showToast('Property approved!');renderAdminLists();renderProperties();}
+}
+
+function rejectProp(id){
+  properties=properties.filter(x=>x.id!==id);
+  localStorage.setItem('ae_properties',JSON.stringify(properties));
+  showToast('Property rejected and removed');
+  renderAdminLists();
+  renderProperties();
+}
+
+function deleteProp(id){
+  if(!confirm('Delete this property permanently?'))return;
+  properties=properties.filter(x=>x.id!==id);
+  localStorage.setItem('ae_properties',JSON.stringify(properties));
+  showToast('Property deleted');
+  renderAdminLists();
+  renderProperties();
+}
+
+function logout(){
+  currentUser=null;
+  isAdmin=false;
+  localStorage.removeItem('ae_currentUser');
+  localStorage.removeItem('ae_isAdmin');
+  showToast('Logged out successfully');
+  updateProfileTab();
+  switchTab('homeTab');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function showAdminLogin(){
+  const pwd=prompt('Enter admin passcode:');
+  if(pwd==='8611'){isAdmin=true;localStorage.setItem('ae_isAdmin','true');showToast('Admin access granted');updateProfileTab();}
+  else if(pwd){showToast('Invalid passcode');}
+}
+
+function toggleTheme(){
+  const html=document.documentElement;
+  const current=html.getAttribute('data-theme');
+  const next=current==='light'?'dark':'light';
+  html.setAttribute('data-theme',next==='light'?'light':null);
+  localStorage.setItem('ae_theme',next);
+  document.getElementById('themeToggle').textContent=next==='light'?'☀️':'🌙';
+}
+
+function checkTheme(){
+  const saved=localStorage.getItem('ae_theme');
+  if(saved==='light'){document.documentElement.setAttribute('data-theme','light');document.getElementById('themeToggle').textContent='☀️';}
+}
+
+// Close modal on backdrop click
+document.addEventListener('click',e=>{
+  if(e.target.classList.contains('modal'))closeModal();
+});
+</script>
+</body>
+</html>
